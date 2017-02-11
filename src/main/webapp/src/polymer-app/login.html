@@ -1,0 +1,30 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+
+
+<dom-module id="uengine-login">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <paper-input label="Name" id="name" value={{name}}></paper-input>
+    <paper-input label="Password" id="password" value={{password}} type="password"></paper-input>
+    <iron-label>{{message}}</iron-label>
+
+    <paper-button id="login-button" on-tap="_login" raised>Login</paper-button>
+  </template>
+
+  <script>
+    mw3.Polymer({
+
+      is: 'uengine-login',
+      java: 'org.uengine.Login'
+
+    });
+  </script>
+</dom-module>
