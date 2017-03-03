@@ -1,5 +1,7 @@
 # polymer-java-mapping
+Polymer-Java Mapper simply maps the front-end module written by Polymer with Java back-end. Metaworks3 framework works for metadata synchronization and remote procedure call between the front and back-end module.
 
+## Example
 
 ### front-end module
 ```
@@ -68,3 +70,15 @@ public class Login {
 	
 }
 ```
+
+## Benefit
+
+1. You don't need to re-define and synchronize the definition of properties and functions for the model.
+1. Encourages a model-driven (domain driven) development.
+1. If your back-end is almost written in Java, it excels the development speed.
+
+## Document
+
+1. [Wiki](https://github.com/TheOpenCloudEngine/polymer-java-mapping/wiki)
+1. [Metaworks3](https://github.com/TheOpenCloudEngine/metaworks)
+1. [Polymer](https://www.polymer-project.org)
