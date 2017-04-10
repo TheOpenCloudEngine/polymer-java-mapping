@@ -13,7 +13,21 @@
         mw3.Polymer({
             is: 'generic-form',
             java: 'org.uengine.Login',
-            generic: true
+            generic: true,
+
+            ready: function(){
+
+                this.classDef = mw3.getMetadata(this.__className);
+
+                for(var idx in this.fields){
+                    var field = this.fields[idx];
+                    var input = document.createElement("paper-input");
+                    input.label = field.name;
+                    input.value = "{{value." + field.name + "}}";
+
+                    Polymer.dom(this.root).appendChild(input);
+                }
+            }
         });
     </script>
 </dom-module>

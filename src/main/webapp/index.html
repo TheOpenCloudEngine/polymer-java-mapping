@@ -63,6 +63,7 @@
         var metadata = mw3.getMetadata(proto.java);
         var generic = proto.generic;
         var moduleId = proto.is;
+        var __className = proto.java;
 
         if(!proto.properties) proto.properties = {};
 
@@ -86,18 +87,18 @@
             type: type
           }
 
-          if(generic){
 
-            var input = document.createElement("paper-input");
-            document.querySelector("#"+ moduleId).appendChild(input);
+        }
 
-          }
+        proto.properties.__className = {
+            type: 'String',
+            value:
         }
 
         proto.properties.__className = {
           type: String,
-          value: proto.java
-        }
+          value: __className
+        };
 
 
         for(var idx in metadata.serviceMethodContexts){
@@ -181,6 +182,10 @@
                     }
             );
           }
+        }
+
+        proto.ready = function(){
+
         }
 
         Polymer(proto);
