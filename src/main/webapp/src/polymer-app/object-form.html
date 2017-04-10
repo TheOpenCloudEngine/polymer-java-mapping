@@ -1,0 +1,204 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+
+
+<dom-module id="object-form">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+
+        <paper-input value="{{user.name.first}}"
+               placeholder="First Name"></paper-input>
+        <input value="{{user.name.last::input}}"
+               placeholder="Last Name">
+
+        <template is="dom-repeat" items="{{fields}}">
+            <paper-input label="{{item.displayName}}" value="{{item.value}}"></paper-input>
+        </template>
+
+        <template is="dom-repeat" items="{{methods}}">
+            <paper-button id="[[item.methodName]]" on-tap="_method" raised>[[item.displayName]]</paper-button>
+        </template>
+    </template>
+
+    <script>
+        Polymer({
+            is: 'object-form',
+
+            properties: {
+                java: {
+                    type: String
+                },
+                value: {
+                    type: Object
+                },
+                fields: {
+                    type: Array,
+                    value: [
+                        {name:'name', displayName:'Name', value:'jjy'},
+                        {name:'message', displayName:'Message', value:'message'},
+                        {name:'password', displayName:'Password', value:'jjy'},
+
+
+                    ]
+                },
+                methods:{
+                    type: Array
+                },
+                user: {
+                    type: Object,
+                    value: function() {
+                        return {'name':{}};
+                    }
+                }
+            },
+            observers: [
+                'userNameChanged(user.name.*)',
+                'valueChanged(value)',
+                'fieldChanged(fields.*.value)'
+            ],
+            userNameChanged: function(changeRecord) {
+                console.log('path: ' + changeRecord.path);
+                console.log('value: ' + changeRecord.value);
+            },
+
+
+            ready: function() {
+                console.log(this.localName + '#' + this.id + ' has local DOM initialized');
+
+                this.classDef = mw3.getMetadata(this.java);
+
+
+                this.fields=this.classDef.fieldDescriptors;
+                this.valueChanged(this.value);
+
+                this.methods=this.classDef.serviceMethodContexts;
+                this.__className = this.classDef.name;
+
+            },
+
+            _fieldValue: function(fieldName){
+              return this.value[fieldName];
+            },
+
+            valueChanged: function(value){
+                    console.log(value);
+
+                for(var idx in this.fields){
+                    var field = this.fields[idx];
+                    field.value = this.value[field.name];
+                }
+
+                this.set('fields', this.fields);
+            },
+
+            fieldChanged: function(fieldVal){
+                console.log(fieldVal);
+            },
+
+            _method: function(e){
+                //this.fields[0].value="xxxx";
+                this.set('value.name', 'Half Moon Street');
+                this.value = {name: 'jjy'};
+
+                console.log(e.srcElement.id);
+
+                var methodName = e.srcElement.id;
+
+                var serviceMethodContext;
+
+                for(var idx in this.methods){
+                    var method = this.methods[idx];
+
+                    if(method.methodName == methodName){
+
+                        serviceMethodContext = method;
+                        break;
+                    }
+                }
+
+                var objectForCall;
+                var object = this.value;
+                object.__className = this.__className;
+                var objectMetadata = this.classDef;
+
+                if(serviceMethodContext.callByContent == false){
+                    if(serviceMethodContext.payload){
+
+                        var beanPaths = [];
+                        for(var key in serviceMethodContext.payload){
+
+                            if(key.indexOf("wireParamCls:") != 0)
+                                beanPaths.push(key);
+                        }
+
+                        objectForCall = mw3.___copyBeanPathsOnly(this, beanPaths);
+
+                    }else
+                        objectForCall = this._createKeyObject(object); //default option
+                }else{
+
+                    objectForCall = {__className: object.__className, metaworksContext: object.metaworksContext};
+
+                    //we have to copy all the field values for objectForCall since there's too many additional JSON fields for call methods.
+                    for(var i in objectMetadata.fieldDescriptors){
+                        var fd = objectMetadata.fieldDescriptors[i];
+
+                        if(object!=null && object[fd.name]!=null && (!serviceMethodContext.except || !serviceMethodContext.except[fd.name]))
+                            objectForCall[fd.name] = object[fd.name];
+                    }
+                }
+
+
+                mw3.metaworksProxy.callMetaworksService(this.__className, objectForCall, method.methodName, null,
+                        {
+                            callback: function(result){
+
+                                returnValue = result;
+                                var target = object;
+
+                                if(serviceMethodContext.target != "none"){
+
+                                    if(result.__className == object.__className){
+
+
+                                    }else{
+                                        var moduleId = mw3.polymerMapping[result.__className];
+
+                                        target = document.querySelector(moduleId);
+
+                                    }
+                                }
+
+                                if(target){
+                                    objectMetadata = mw3.getMetadata(target.__className);
+
+                                    for(var i in objectMetadata.fieldDescriptors){
+                                        var fd = objectMetadata.fieldDescriptors[i];
+
+                                        this.fields[fd.name].value = result[fd.name];
+                                    }
+                                }
+
+                            },
+
+                            async: method.target!="none",
+
+                            errorHandler:function(errorString, exception) {
+                                if(method.target=="none")
+                                    throw exception;
+                            }
+
+                        }
+                );
+
+            }
+        });
+    </script>
+</dom-module>
