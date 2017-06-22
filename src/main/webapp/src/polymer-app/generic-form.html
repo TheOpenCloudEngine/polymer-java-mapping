@@ -6,7 +6,6 @@
 
 
 <dom-module id="generic-form">
-    <template></template>
 
     <script>
 
@@ -19,14 +18,19 @@
 
                 this.classDef = mw3.getMetadata(this.__className);
 
-                for(var idx in this.fields){
-                    var field = this.fields[idx];
+                var templateArea = document.createElement('template', 'dom-bind');
+
+                for(var idx in this.classDef.fieldDescriptors){
+                    var field = this.classDef.fieldDescriptors[idx];
                     var input = document.createElement("paper-input");
                     input.label = field.name;
-                    input.value = "{{value." + field.name + "}}";
-
-                    Polymer.dom(this.root).appendChild(input);
+                    input.value = "{{"+ field.name + "}}";
+                    templateArea.appendChild(input);
                 }
+
+
+                Polymer.dom(this.root).appendChild(templateArea);
+
             }
         });
     </script>
